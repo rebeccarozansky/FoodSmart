@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, Text, View, TextInput,KeyboardAvoidingView ,TouchableOpacity, Keyboard} from 'react-native';
+import { Platform, StyleSheet, ScrollView, Text, View, TextInput,KeyboardAvoidingView ,TouchableOpacity, Keyboard} from 'react-native';
 import React, {useState} from 'react';
 import Task from '../components/Task'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-// import firestore from '@react-native-firebase/firestore';
+import { webWeights, iOSColors } from 'react-native-typography'
 
 const HomeScreen = ({ navigation }) => {
   //const navigation = useNavigation();
@@ -16,6 +16,7 @@ const HomeScreen = ({ navigation }) => {
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);
     const [textDate, setTextDate] = useState(fDate);
+    const [collapsed, setCollapsed] = useState(false);
   
     //setTextDate(fDate);
     const onChange = (event, selectedDate) => {
@@ -39,8 +40,18 @@ const HomeScreen = ({ navigation }) => {
     const [taskItems, setTaskItems] = useState([]);
     const handleAddTask = () => {
       Keyboard.dismiss();
-      var temp = {'task':task,'date':textDate}
-      setTaskItems([...taskItems,temp])
+      var temp = {'task':task,'date':textDate,'dateobj':date}
+      var itemsCopy2 = [...taskItems,temp]
+      itemsCopy2.sort(function(a,b){
+        //return a.attributes.OBJECTID - b.attributes.OBJECTID;
+        if(a.dateobj == b.dateobj)
+            return 0;
+        if(a.dateobj < b.dateobj)
+            return -1;
+        if(a.dateobj > b.dateobj)
+            return 1;
+        })
+      setTaskItems(itemsCopy2)
       setTask(null);
       // const ref = firestore().collection('todos');
     }
@@ -48,32 +59,47 @@ const HomeScreen = ({ navigation }) => {
     const completeTask = (index) => {
       let itemsCopy = [...taskItems];
       itemsCopy.splice(index, 1);
-      setTaskItems(itemsCopy);
+
+        setTaskItems(itemsCopy);
+
     } 
   
     return (
       <View style={styles.container}>
   
         <View style={styles.tasksWrapper}>
-        <Text style={styles.sectionTitle}>Your Ingredients</Text>
-        <View style={styles.items}>
+        <Text style={styles.sectionTitle}>Your Ingredients <TouchableOpacity style={styles.borderPad} onPress={() => navigation.navigate('Information')}>
+  
+  <View style={styles.addWrapperInfo}>
+    <Text style={styles.addText}>i</Text>
+  </View>
+</TouchableOpacity></Text>
+        
+        <Text style={styles.itemDescription}>You have
+          <Text style={styles.itemDescriptionStrong}> {taskItems.length} </Text>
+          items in your pantry! {"\n\n"}
+        </Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={styles.items}>
   
           {
             console.log(taskItems)
           }
+
           {
+            
             taskItems.map((item,index)=>{
               return (
-              <TouchableOpacity key={index} onPress={() => navigation.navigate('Recipes')} onLongPress={() => completeTask(index)}> 
+              <TouchableOpacity key={index} onPress={() => navigation.navigate('Recipes',{
+                paramKey: item['task'],
+              })} onLongPress={() => completeTask(index)}> 
                           <Task text={item['task']} date={item['date']}/>
   
               </TouchableOpacity>
             )})
   
           }
-          <Task text={'Task 1'}> </Task>
-  
-        </View>
+
+        </ScrollView>
         </View>
         <StatusBar style="auto" />
         <KeyboardAvoidingView 
@@ -123,12 +149,30 @@ const HomeScreen = ({ navigation }) => {
       paddingHorizontal: 20,
   
     },
+    itemDescription: {
+      fontSize: 15,
+      letterSpacing: 1.5,
+      paddingVertical: 10,
+      paddingHorizontal: 10,
+      ...webWeights.semibold,
+    },
+    itemDescriptionStrong: {
+      fontSize: 18,
+      letterSpacing: 1.5,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      textDecorationLine: 'underline',
+      ...webWeights.heavy,
+    },
+    info: {
+      textDecorationLine:'underline',
+    },
     sectionTitle:{
       fontSize: 24,
       fontWeight: 'bold',
     },
     items: {
-      marginTop: 30,
+      marginTop: 20,
     },
     writeTaskWrapper:{
       position: 'absolute',
@@ -157,7 +201,20 @@ const HomeScreen = ({ navigation }) => {
       borderColor: '#C0C0C0',
       borderWidth: 1,
     },
-    addText:{}
+    addText:{},
+    addWrapperInfo:{
+      width: 20,
+      height: 20,
+      backgroundColor: '#FFF',
+      borderRadius: 60,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderColor: '#C0C0C0',
+      borderWidth: 1,
+    },
+    borderPad:{
+      paddingLeft: 5,
+    }
   });
 
   export default HomeScreen;

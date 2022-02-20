@@ -1,38 +1,44 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, Text, View, TextInput,KeyboardAvoidingView ,TouchableOpacity, Keyboard} from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View, TextInput,KeyboardAvoidingView ,TouchableOpacity, Keyboard} from 'react-native';
 import React, {useState} from 'react';
 import Recipe from '../components/Recipe';
+import { webWeights, iOSColors } from 'react-native-typography'
 
 const FullRecipeScreen = ({route,navigation}) => {
     //const message = navigation.getParam('paramKey')
     const rec = route.params.paramKey;
 
     console.log(rec);
-    return(<View >
-        <Text style={styles.sectionTitle}> {rec.name}</Text>
-        <Text> Prep Time: {rec.preptime/60} </Text>
-        <Text> Wait Time: {rec.waittime/60} </Text>
-        <Text> Servings: {rec.servings} </Text>
-        <View>
+    return(
+    <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={styles.container}>
+        <Text style={styles.title}> {rec.name} </Text>
+        <Text style={styles.itemDescription}> Prep Time: {rec.preptime/60} </Text>
+        <Text style={styles.itemDescription}> Wait Time: {rec.waittime/60} </Text>
+        <Text style={styles.itemDescription}> Servings: {rec.servings} </Text>
+      
+        <Text style={styles.sectionTitle}> Ingredients List: </Text>
         {
             rec.ingredients.map((item,index)=>{
               return (
-                  <Text> {item}</Text>
+                  <Text style={styles.items}> {item}</Text>
             )})
   
           }
-        </View>
-        <Text>
+        <Text style={styles.sectionTitle} > Steps: </Text>
+        <Text style={styles.steps}>
             {rec.instructions}
         </Text>
-    </View>)
+        </View>
+    </ScrollView>)
 }
 
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#E8EAED',
-  
+      paddingBottom: 20,
+      paddingHorizontal: 10,
+
     },
     tasksWrapper: {
       paddingTop: 80,
@@ -42,9 +48,36 @@ const styles = StyleSheet.create({
     sectionTitle:{
       fontSize: 24,
       fontWeight: 'bold',
+      paddingTop: 20,
+      paddingBottom: 10,
+      ...webWeights.heavy,
+    },
+    title:{
+      fontSize: 30,
+      fontWeight: 'bold',
+      paddingTop: 30,
+      paddingBottom: 30,
+      ...webWeights.black,
+    },
+    itemDescription: {
+      fontSize: 15,
+      letterSpacing: 1.5,
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      ...webWeights.semibold,
     },
     items: {
-      marginTop: 30,
+      fontSize: 15,
+      letterSpacing: 1.5,
+      paddingVertical: 2,
+      ...webWeights.light,
+    },
+    steps: {
+      fontSize: 18,
+      letterSpacing: 1.5,
+      paddingVertical: 7,
+      paddingHorizontal: 10,
+      ...webWeights.light,
     },
     writeTaskWrapper:{
       position: 'absolute',

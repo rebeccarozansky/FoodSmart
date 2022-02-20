@@ -1,10 +1,36 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, Text, View, TextInput,KeyboardAvoidingView ,TouchableOpacity, Keyboard} from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View, TextInput,KeyboardAvoidingView ,TouchableOpacity, Keyboard} from 'react-native';
 import React, {useState} from 'react';
 import Recipe from '../components/Recipe';
+import { webWeights } from 'react-native-typography';
 
-const RecipeScreen = ({navigation}) => {
+import db from '../assets/recipes.js'
 
+const RecipeScreen = ({route,navigation}) => {
+ 
+    const name = route.params.paramKey;
+    const [recipes, setRecipes] = useState([]);
+    const [fave,setFave] = useState([]);
+    const [collapsed, setCollapsed] = useState(false);
+    db.forEach(item => {
+        for (var key in item){
+          if (item.hasOwnProperty(key)) {
+            var val = item[key];
+            for (var i = 0; i < val.ingredients.length; i++){
+              if (val.ingredients[i].toLowerCase().indexOf(name.toLowerCase()) != -1){
+                if (recipes.length <= 7) {
+                  recipes.push(val);
+                } else {
+                  console.log("Too large, Ignore");
+                }
+              }
+            }
+          }
+        }
+      })
+      console.log(recipes);
+
+      //setRecipes(tempRecipes);
 var recipeItems = [
 {
     "calories": 0,
@@ -35,61 +61,47 @@ var recipeItems = [
       "chicken",
     ],
     "waittime": 14400,
-},
-{
-    "id": "2",
-    "name": "Baked Shrimp Scampi",
-    "source": "Ina Garten: Barefoot Contessa Back to Basics",
-    "preptime": 0,
-    "waittime": 0,
-    "cooktime": 0,
-    "servings": 6,
-    "comments": "Modified by reducing butter and salt.  Substituted frozen shrimp instead of fresh 12-15 count (butterflied, tails on).",
-    "calories": 2565,
-    "fat": 159,
-    "satfat": 67,
-    "carbs": 76,
-    "fiber": 4,
-    "sugar": 6,
-    "protein": 200,
-    "instructions": "Preheat the oven to 425 degrees F.\r\n\r\nDefrost shrimp by putting in cold water, then drain and toss with wine, oil, salt, and pepper. Place in oven-safe dish and allow to sit at room temperature while you make the butter and garlic mixture.\r\n\r\nIn a small bowl, mash the softened butter with the rest of the ingredients and some salt and pepper.\r\n\r\nSpread the butter mixture evenly over the shrimp. Bake for 10 to 12 minutes until hot and bubbly. If you like the top browned, place under a broiler for 1-3 minutes (keep an eye on it). Serve with lemon wedges and French bread.\r\n\r\nNote: if using fresh shrimp, arrange for presentation. Starting from the outer edge of a 14-inch oval gratin dish, arrange the shrimp in a single layer cut side down with the tails curling up and towards the center of the dish. Pour the remaining marinade over the shrimp. ",
-    "ingredients": [
-        "2\/3 cup panko\r",
-        "1\/4 teaspoon red pepper flakes\r",
-        "1\/2 lemon, zested and juiced\r",
-        "1 extra-large egg yolk\r",
-        "1 teaspoon rosemary, minced\r",
-        "3 tablespoon parsley, minced\r",
-        "4 clove garlic, minced\r",
-        "1\/4 cup shallots, minced\r",
-        "8 tablespoon unsalted butter, softened at room temperature\r",
-        "<hr>",
-        "2 tablespoon dry white wine\r",
-        "Freshly ground black pepper\r",
-        "Kosher salt\r",
-        "3 tablespoon olive oil\r",
-        "2 pound frozen shrimp"
-    ],
-    "tags": [
-        "seafood",
-        "shrimp",
-        "main"
-    ]
-},
+}]
+recipeItems = recipes;
 
-]
+recipeItems = [...new Set(recipeItems)];
+
+const addFavorite = (f) => {
+    setFave([...fave,f])
+}
+
+
 return(
     <View style={styles.container}>
   
     <View style={styles.tasksWrapper}>
     <Text style={styles.sectionTitle}>Recipes</Text>
-    <View style={styles.items}>
+
+    <TouchableOpacity onPress={() =>navigation.navigate('Favorites',{paramKey: fave})} style={styles.addFav}>
+  
+  <View style={styles.addWrapper}>
+    <Text style={styles.addText}>⭐</Text>
+  </View>
+</TouchableOpacity>
+<Text style={styles.itemDescription}>
+  View Instructions: {"\n"}
+      <Text style={styles.info} onPress={ ()=> setCollapsed(true)}>{!collapsed && "collapse"}</Text>
+          {collapsed &&
+            <Text>
+            Press once to follow along one of our carefully curated recipes! {"\n\n"}
+            Press and Hold to ⭐ favorite a recipe. {"\n\n"}
+            You may "retrieve" the recipes you have favorited at the "⭐" folder above.{"\n\n"}
+            Enjoy!! {"\n\n"}
+            <Text style={styles.info} onPress={ ()=> setCollapsed(false)}>minimize</Text>
+          </Text>}
+        </Text>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={styles.items}>
     {
             recipeItems.map((item,index)=>{
               return (
               <TouchableOpacity key={index} onPress={() => navigation.navigate('FullRecipe',{
                 paramKey: item,
-              })}
+              })} onLongPress={() => addFavorite(item)}
               /*onPress={() =>
                 navigation.navigate('SecondPage', {
                   paramKey: userName,
@@ -102,7 +114,7 @@ return(
   
           }
       
-    </View>
+    </ScrollView>
     </View>
     </View>
 
@@ -117,7 +129,7 @@ const styles = StyleSheet.create({
   
     },
     tasksWrapper: {
-      paddingTop: 80,
+      paddingTop: 20,
       paddingHorizontal: 20,
   
     },
@@ -127,6 +139,16 @@ const styles = StyleSheet.create({
     },
     items: {
       marginTop: 30,
+    },
+    itemDescription: {
+      fontSize: 15,
+      letterSpacing: 1.5,
+      paddingVertical: 10,
+      paddingHorizontal: 10,
+      ...webWeights.semibold,
+    },
+    info: {
+      textDecorationLine:'underline',
     },
     writeTaskWrapper:{
       position: 'absolute',
@@ -147,7 +169,7 @@ const styles = StyleSheet.create({
     },
     addWrapper:{
       width: 60,
-      height: 60,
+      height: 40,
       backgroundColor: '#FFF',
       borderRadius: 60,
       justifyContent: 'center',
@@ -155,7 +177,14 @@ const styles = StyleSheet.create({
       borderColor: '#C0C0C0',
       borderWidth: 1,
     },
-    addText:{}
+    addText:{
+        justifyContent:'center',
+        alignItems:'center',
+        textAlign: 'center',
+    },
+    addFav:{
+        paddingTop: 10,
+    }
   });
 
 export default RecipeScreen;

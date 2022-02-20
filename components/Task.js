@@ -1,15 +1,21 @@
 import React from 'react';
 import {View, Text, StyleSheet,TouchableOpacity} from 'react-native';
+import { iOSColors } from 'react-native-typography';
 
 const Task = (props) => {
     console.log(props);
+    var tod = new Date();
+    const fDate =  (tod.getMonth()+1) + '/' + tod.getDate()  +  '/' + tod.getFullYear();
 
     return (
         <View  style={styles.item}>
             <View style={styles.itemLeft}>
                 <View style={styles.square}></View>
                 <Text style={styles.itemText}> {props.text}   </Text>
-                <Text style={styles.itemDate}> {props.date} </Text>
+                {props.date < fDate ? 
+                <Text style={styles.expiredDate}> {props.date} </Text>
+                :
+                <Text style={styles.itemDate}> {props.date} </Text>}
             </View>
         </View>
 
@@ -47,6 +53,11 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'right',
         //paddingRight: 5,
+    },
+    expiredDate:{
+        flex: 1,
+        textAlign: 'right',
+        color: iOSColors.red,
     },
     circular:{
         width: 12,
