@@ -1,16 +1,17 @@
 import React from 'react';
 import {View, Text, StyleSheet,TouchableOpacity} from 'react-native';
 
-const Task = (props) => {
-    console.log(props);
-
+const Recipe = (props) => {
+    console.log(props.info.name);
+    console.log("here");
     return (
         <View  style={styles.item}>
             <View style={styles.itemLeft}>
-                <View style={styles.square}></View>
-                <Text style={styles.itemText}> {props.text}   </Text>
-                <Text style={styles.itemDate}> {props.date} </Text>
+                <Text style={styles.square}> {props.info.waittime/60}min</Text>
+                <Text style={styles.itemText}> {props.info.name} {props.info.preptime} </Text>
+
             </View>
+            <View style={styles.circular}></View>
         </View>
 
     )
@@ -33,20 +34,17 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     square:{
-        width: 24,
-        height: 24,
+        width: 36,
+        height: 36,
         backgroundColor: '#55BCF6',
         opacity: 0.4,
-        borderRadius: 5,
+        borderRadius: 8,
         marginRight: 15,
+        textAlign: 'center',
+        fontSize: 14,
     },
     itemText:{
         maxWidth: '80%',
-    },
-    itemDate:{
-        flex: 1,
-        textAlign: 'right',
-        //paddingRight: 5,
     },
     circular:{
         width: 12,
@@ -59,4 +57,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default Task;
+export default Recipe;
